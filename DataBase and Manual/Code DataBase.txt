@@ -1,0 +1,86 @@
+CREATE TABLE `accesos` (
+   `ID_Acceso` int(11) NOT NULL AUTO_INCREMENT,
+   `ID_Tarjeta` int(11) DEFAULT NULL,
+   `Fecha_Hora` datetime NOT NULL,
+   `Tipo` enum('Entrada','Salida') NOT NULL,
+   PRIMARY KEY (`ID_Acceso`),
+   KEY `ID_Tarjeta` (`ID_Tarjeta`),
+   CONSTRAINT `accesos_ibfk_1` FOREIGN KEY (`ID_Tarjeta`) REFERENCES `tarjetas` (`ID_Tarjeta`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+CREATE TABLE `pagos` (
+   `ID_Pago` int(11) NOT NULL AUTO_INCREMENT,
+   `ID_Residente` int(11) DEFAULT NULL,
+   `Monto` decimal(10,2) NOT NULL,
+   `Fecha_Pago` datetime NOT NULL,
+   `Estado` enum('Pendiente','Pagado') NOT NULL,
+   PRIMARY KEY (`ID_Pago`),
+   KEY `ID_Residente` (`ID_Residente`),
+   CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`ID_Residente`) REFERENCES `usuarios` (`ID_Usuario`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+CREATE TABLE `reservas` (
+   `ID_Reserva` int(11) NOT NULL AUTO_INCREMENT,
+   `ID_Residente` int(11) DEFAULT NULL,
+   `ID_Zona` int(11) DEFAULT NULL,
+   `Fecha_Hora` datetime NOT NULL,
+   `Estado` enum('Confirmada','Cancelada') NOT NULL,
+   PRIMARY KEY (`ID_Reserva`),
+   KEY `ID_Residente` (`ID_Residente`),
+   KEY `ID_Zona` (`ID_Zona`),
+   CONSTRAINT `reservas_ibfk_1` FOREIGN KEY (`ID_Residente`) REFERENCES `usuarios` (`ID_Usuario`),
+   CONSTRAINT `reservas_ibfk_2` FOREIGN KEY (`ID_Zona`) REFERENCES `zonascomunes` (`ID_Zona`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+CREATE TABLE `tarjetas` (
+   `ID_Tarjeta` int(11) NOT NULL AUTO_INCREMENT,
+   `ID_Usuario` int(11) DEFAULT NULL,
+   `Estado` enum('Activa','Inactiva') NOT NULL,
+   PRIMARY KEY (`ID_Tarjeta`),
+   KEY `ID_Usuario` (`ID_Usuario`),
+   CONSTRAINT `tarjetas_ibfk_1` FOREIGN KEY (`ID_Usuario`) REFERENCES `usuarios` (`ID_Usuario`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+CREATE TABLE `usuarios` (
+   `ID_Usuario` int(11) NOT NULL AUTO_INCREMENT,
+   `Nombre` varchar(100) NOT NULL,
+   `Apellido` varchar(100) NOT NULL,
+   `Cedula` varchar(20) NOT NULL,
+   `Correo` varchar(100) NOT NULL,
+   `Telefono` varchar(15) DEFAULT NULL,
+   `Rol` enum('Administrador','Residente') NOT NULL,
+   `Contraseña` varchar(255) NOT NULL,
+   PRIMARY KEY (`ID_Usuario`),
+   UNIQUE KEY `Correo` (`Correo`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+CREATE TABLE `visitantes` (
+   `ID_Visitante` int(11) NOT NULL AUTO_INCREMENT,
+   `Nombre` varchar(100) NOT NULL,
+   `Documento` varchar(50) NOT NULL,
+   `ID_Residente` int(11) DEFAULT NULL,
+   `Motivo_Visita` text DEFAULT NULL,
+   `Estado` enum('Pendiente','Aprobado') NOT NULL,
+   PRIMARY KEY (`ID_Visitante`),
+   KEY `ID_Residente` (`ID_Residente`),
+   CONSTRAINT `visitantes_ibfk_1` FOREIGN KEY (`ID_Residente`) REFERENCES `usuarios` (`ID_Usuario`)
+ ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+CREATE TABLE `zonascomunes` (
+   `ID_Zona` int(11) NOT NULL AUTO_INCREMENT,
+   `Nombre` varchar(100) NOT NULL,
+   `Capacidad` int(11) NOT NULL,
+   `Estado` enum('Disponible','Ocupada') NOT NULL,
+   PRIMARY KEY (`ID_Zona`)
+ ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+
+CREATE TABLE estado_pagos (
+    ID_Pago INT AUTO_INCREMENT PRIMARY KEY,
+    ID_Residente INT NOT NULL,
+    ID_Reserva INT NOT NULL,
+    Monto DECIMAL(10,2) NOT NULL,
+    Estado ENUM('Pendiente', 'Pagado') NOT NULL DEFAULT 'Pendiente',
+    Fecha_Pago DATETIME DEFAULT NULL,
+    FOREIGN KEY (ID_Residente) REFERENCES residentes(ID_Residente),
+    FOREIGN KEY (ID_Reserva) REFERENCES reservas(ID_Reserva)
+);
